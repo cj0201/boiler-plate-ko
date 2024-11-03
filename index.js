@@ -24,6 +24,7 @@ app.get('/', (req, res) => { // 앱을 넣은 후에 루트디렉토리에 오�
 })
 
 
+//register route
 app.post('/register', async (req, res) => {
   try {
     const user = new User(req.body);

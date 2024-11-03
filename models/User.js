@@ -1,5 +1,10 @@
 const mongoose = require('mongoose'); // 따옴표 누락 수정
 
+const bcrypt = require('bcrypt');
+const saltRounds = 10
+
+
+
 const userSchema = mongoose.Schema({
     name:{
         type:String,
@@ -30,6 +35,29 @@ const userSchema = mongoose.Schema({
         type: Number
     }
 })
+
+//user 모델에 user정보를 저장하기 전에 뭔가를 해준다?
+userSchema.pre('save',function(next) { // next 파라미터는 다음으로 넘기게 하는거
+    var user =this; // 이거는 userSchema를 가르키는것 
+    if(user.isModified('password')) {
+    //비밀번호를 암호화 시킨다.
+    bcrypt.genSalt(saltRounds, function(err, salt) {
+        if(err) return next(err)
+
+        bcrypt.hash(user.password, salt, function(err, hash) { // hash는 암호화된 비밀번호
+            if(err) return next(err)
+            user.password = hash  // hash는 암호화된 비밀번호로 바꿔준다. 
+            next()
+        })
+       
+    })
+
+    }else {
+        next()
+    }
+
+
+}) // 이게 끝나면 register route 로 넘어간다.
 
 const User = mongoose.model('User',userSchema) // 스키마를 감싸주는 모델
 
